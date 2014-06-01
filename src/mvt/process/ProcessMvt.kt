@@ -22,11 +22,30 @@ public class ProcessMvt {
         val allMvt = getMvtFromFile()
         for (mvt in allMvt) {
             val body = mvt.get("body") as JsonObject
+            val header = mvt.get("header") as JsonObject
+            val dataSource = getString(header, "original_data_source")
+
             val planned = getLong(body, "planned_timestamp")
             val actual = getLong(body, "actual_timestamp")
+            val delay = diffSeconds(actual, planned)
+
             val eventType = getString(body, "event_type")
-            println("planned time: " + timestamp(planned) + ", actual: " + timestamp(actual) + " (" + eventType + ")")
+            val timetableVariation = getString(body, "timetable_variation")
+            val variationStatus = getString(body, "variation_status")
+            val trainId = getString(body, "train_id")
+
+            println("planned time: " + timestamp(planned) + ", actual: " + timestamp(actual) + " delay: " + delay +
+            " ttvar: " + timetableVariation + " varstatus: " + variationStatus +
+            " train_id: " + trainId + " datasource: " + dataSource +
+            " event type: " + eventType + ")")
         }
+    }
+
+    fun diffSeconds(time1:Long?, time2:Long?): Long? {
+        if (time1 != null && time2 != null) {
+            return (time1 - time2) / 1000
+        }
+        return null
     }
 
     fun timestamp(timestamp :String?) :String {
